@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Jogo do Dinossauro</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #f7f7f7;
+            transition: background-color 0.5s;
+            color: #333;
+        }
+        #jogo {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+        #dinossauro {
+            width: 50px;
+            height: 50px;
+            background-color: #666;
+            position: absolute;
+            bottom: 0;
+            left: 50px;
+            transition: bottom 0.3s, background-color 0.5s;
+        }
+        #obstaculo {
+            width: 20px;
+            height: 20px;
+            background-color: #333;
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            animation: obstaculo 3s linear infinite;
+        }
+        #pontuacao {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 24px;
+            transition: color 0.5s;
+        }
+        #botao {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 5px 10px;
+            background-color: #333;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.5s;
+        }
+        #botao:hover {
+            background-color: #555;
+        }
+        .escuro {
+            background-color: black;
+            color: white;
+        }
+        .escuro #pontuacao {
+            color: white;
+        }
+        .escuro #dinossauro, .escuro #obstaculo {
+            background-color: white;
+        }
+        @keyframes obstaculo {
+            from {
+                right: 0;
+            }
+            to {
+                right: 100vw;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="jogo">
+        <div id="dinossauro"></div>
+        <div id="obstaculo"></div>
+        <button id="botao">Modo Escuro</button>
+        <div id="pontuacao">Pontuação: 0</div>
+    </div>
+    <script>
+        let jogoRodando = true;
+        let pontuacao = 0;
+        let velocidade = 1;
+
+        function atualizarPontuacao() {
+            pontuacao += 1;
+            if (pontuacao % 10 === 0) {
+                velocidade += 1;
+            }
+            document.getElementById('pontuacao').innerText = 'Pontuação: ' + pontuacao;
+            setTimeout(atualizarPontuacao, 1000);
+        }
+
+        function checarColisao() {
+            const dinossauro = document.getElementById('dinossauro');
+            const obstaculo = document.getElementById('obstaculo');
+            const dd = dinossauro.getBoundingClientRect();
+            const od = obstaculo.getBoundingClientRect();
+
+            if (!(dd.right < od.left || dd.left > od.right || dd.bottom < od.top || dd.top > od.bottom)) {
+                jogoRodando = false;
+                alert('Game Over! Sua pontuação foi: ' + pontuacao);
+                location.reload(); // Reinicia o jogo
+            }
+
+            if (jogoRodando) {
+                requestAnimationFrame(checarColisao);
+            }
+        }
+
+        function pular() {
+            const dinossauro = document.getElementById('dinossauro');
+            if (dinossauro.style.bottom === '0px' || dinossauro.style.bottom === '') {
+                dinossauro.style.bottom = '50px';
+                setTimeout(() => {
+                    dinossauro.style.bottom = '0px';
+                }, 300);
+            }
+        }
+
+        document.getElementById('botao').addEventListener('click', () => {
+            const body = document.querySelector('body');
+            body.classList.toggle('escuro');
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === ' ' || event.key === 'ArrowUp') {
+                pular();
+            }
+        });
+
+        document.addEventListener('click', () => {
+            pular();
+        });
+
+        atualizarPontuacao();
+        checarColisao();
+    </script>
+</body>
+</html>
